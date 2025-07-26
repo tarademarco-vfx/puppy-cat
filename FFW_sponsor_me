@@ -1,0 +1,71 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Transparent Overlay with Custom Image</title>
+  <style>
+    #canvas-container {
+      position: relative;
+      display: inline-block;
+    }
+    canvas {
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h2>Upload a Base Image</h2>
+  <input type="file" id="base-input" accept="image/*">
+  <div id="canvas-container">
+    <canvas id="view-canvas" width="700" height="900"></canvas>
+  </div>
+  <script>
+    ```javascript
+const baseInput = document.getElementById('base-input');
+const canvas = document.getElementById('view-canvas');
+const ctx = canvas.getContext('2d');
+
+let baseImg = null;
+let overlayImg = new Image();
+overlayImg.src = 'SponsorMe_overlay.png'; // Make sure this file is in the same folder
+
+function drawBoth() {
+  if (!baseImg) return;
+
+  // Resize canvas to overlay or base image size (choose preferred logic below)
+  canvas.width = overlayImg.width;
+  canvas.height = overlayImg.height;
+
+  // Draw uploaded base image, stretched or centered (here, stretched)
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(baseImg, 0, 0, canvas.width, canvas.height);
+
+  // Draw overlay image on top
+  overlayImg.onload = () => {
+    ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
+  };
+  if (overlayImg.complete) {
+    ctx.drawImage(overlayImg, 0, 0, canvas.width, canvas.height);
+  }
+}
+
+baseInput.addEventListener('change', e => {
+  if (!e.target.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    baseImg = new Image();
+    baseImg.onload = drawBoth;
+    baseImg.src = ev.target.result;
+  };
+  reader.readAsDataURL(e.target.files[0]);
+});
+
+// Redraw if overlay has just loaded
+overlayImg.onload = drawBoth;
+```
+  </script>
+</body>
+</html>
+
